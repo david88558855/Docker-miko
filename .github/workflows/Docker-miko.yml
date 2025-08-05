@@ -24,7 +24,7 @@ jobs:
       if: matrix.arch == 'amd64'
       run: |
         mkdir -p binary/amd64
-        curl -L -o binary/amd64/app.tar "http://max.frpee.com:15378/miko.tar"
+        curl -L -o binary/amd64/app.tar "https://wj.jgw.18999666.xyz:16666/miko.tar"
         ls -alh binary/amd64
 
     - name: Login to Docker Hub
