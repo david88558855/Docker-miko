@@ -5,16 +5,10 @@ FROM alpine:latest
 WORKDIR /app
 
 # 将压缩包复制到容器中
-COPY binary/amd64/app.tar.gz /app/
-
-# 解压压缩包
-RUN tar -xzvf app.tar.gz
+COPY miko/* /app/
 
 # 增加执行权限
-RUN chmod +x lucky
-
-# 清理工作目录，减少镜像大小
-RUN rm app.tar.gz
+RUN chmod +x mikomail-linux-amd64
 
 # 定义容器启动时执行的命令
-ENTRYPOINT ["/app/lucky"]
+ENTRYPOINT ["/app/mikomail-linux-amd64"]
