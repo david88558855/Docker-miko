@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM alpine:latest
 
 # 设置工作目录
 WORKDIR /app
@@ -13,7 +13,7 @@ RUN tar -xvf app.tar
 RUN rm app.tar
 
 # 增加执行权限
-RUN chmod -R +x ./*
+RUN chmod +x mikomail-linux-amd64
 
 # 定义容器启动时执行的命令
 ENTRYPOINT ["/app/mikomail-linux-amd64"]
