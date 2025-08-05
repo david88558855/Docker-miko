@@ -1,0 +1,88 @@
+name: Docker-lucky-build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-1: #流程1
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        platform: 
+          - { arch: amd64, dockerfile: Dockerfile.amd64, tag: x64 }
+          - { arch: arm64, dockerfile: Dockerfile.arm64, tag: arm64 }
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: arm64,amd64,386,arm
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Download amd64 binary
+        if: ${{ matrix.platform.arch }} == 'amd64'
+        run: |
+          mkdir -p binary/amd64
+          curl -L -o binary/amd64/app.tar.gz \
+          "https://jgw2.18999666.xyz:16666/lucky_2.15.9_Linux_x86_64_wanji.tar.gz"
+          ls -alh binary/amd64
+
+      - name: Download arm64 binary
+        if: ${{ matrix.platform.arch }} == 'arm64'
+        run: |
+          mkdir -p binary/arm64
+          curl -L -o binary/arm64/app.tar.gz \
+          "https://jgw2.18999666.xyz:16666/lucky_2.15.9_Linux_arm64_wanji.tar.gz"
+          ls -alh binary/arm64
+          
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_REGISTRY_USER }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+          
+
+          
+      - name: Build 和 push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          platforms: linux/${{ matrix.platform.arch }}
+          file: ${{ matrix.platform.dockerfile }}
+          tags: haoxuan8855/lucky:${{ matrix.platform.tag }}
+          
+      - name: Logout from Docker Hub
+        run: docker logout
+
+  build-2: #流程2
+    runs-on: ubuntu-latest
+    needs: build-1  # 等待 "build-1" job 完成
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_REGISTRY_USER }}
+        password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+    - name: Build 和 push Docker images
+      run: |
+        docker pull --platform linux/amd64 haoxuan8855/lucky:x64 && \
+        docker push haoxuan8855/lucky:x64 && \
+        docker pull --platform linux/arm64 haoxuan8855/lucky:arm64 && \
+        docker push haoxuan8855/lucky:arm64 && \
+        docker manifest create haoxuan8855/lucky:latest haoxuan8855/lucky:x64 haoxuan8855/lucky:arm64 && \
+        docker manifest push haoxuan8855/lucky:latest
+
+    - name: Logout from Docker Hub
+      run: docker logout
