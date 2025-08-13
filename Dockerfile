@@ -17,8 +17,8 @@ COPY ./${TARGETARCH}/miko /app/
 # 修改 app 文件夹内所有文件的执行权限
 RUN chmod -R +x /app/*
 
-# 设置工作目录
-WORKDIR /app/miko
+# 设置工作目录 /app/miko/
+WORKDIR /app/miko/
 
 # 容器启动时运行的命令
 ENTRYPOINT ["/app/miko/miko"]
