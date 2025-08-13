@@ -1,4 +1,4 @@
-name: Docker-tfcenter-build
+name: Docker-miko-build
 
 on:
   workflow_dispatch:
