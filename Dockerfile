@@ -12,7 +12,7 @@ FROM base-${TARGETARCH}
 ARG TARGETARCH
 
 #拷贝文件至/app文件夹
-COPY ./${TARGETARCH}/miko/* /app
+COPY -R ./${TARGETARCH}/miko/* /app/
 
 # 修改 app 文件夹内所有文件的执行权限
 RUN chmod -R +x /app/*
